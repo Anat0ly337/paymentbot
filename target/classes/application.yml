@@ -1,12 +1,12 @@
 # src/main/resources/application.yml
 bot:
   username: ${TELEGRAM_BOT_USERNAME:Payment_Excursions_Batumi_Bot}
-  token: ${TELEGRAM_BOT_TOKEN:8069030345:AAH6ywoGVpcv5Bfu_yTpN7RxgvuXDFk8hGw}
+  token: ${TELEGRAM_BOT_TOKEN:123}
 
 betatransfer:
   name: ${BETATRANSFER_NAME:excursions_batumi_key}
-  publicKey: ${BETATRANSFER_PUBLIC_KEY:e2b9c57b10c8ff820f049b9d92e4eb53}
-  secretKey: ${BETATRANSFER_PRIVATE_KEY:3313abd1716a0e77339427d905bc27e3}
+  publicKey: ${BETATRANSFER_PUBLIC_KEY:123}
+  secretKey: ${BETATRANSFER_PRIVATE_KEY:123}
 
 logging:
   level:
