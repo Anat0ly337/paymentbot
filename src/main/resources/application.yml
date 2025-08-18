@@ -1,0 +1,14 @@
+# src/main/resources/application.yml
+bot:
+  username: ${TELEGRAM_BOT_USERNAME:Payment_Excursions_Batumi_Bot}
+  token: ${TELEGRAM_BOT_TOKEN}
+
+betatransfer:
+  name: ${BETATRANSFER_NAME:excursions_batumi_key}
+  publicKey: ${BETATRANSFER_PUBLIC_KEY:123}
+  secretKey: ${BETATRANSFER_PRIVATE_KEY:123}
+
+logging:
+  level:
+    root: INFO
+    com.example.telegram: INFO

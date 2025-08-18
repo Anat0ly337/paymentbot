@@ -1,0 +1,134 @@
+package com.example.telegram;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+import org.telegram.telegrambots.bots.TelegramLongPollingBot;
+import org.telegram.telegrambots.meta.TelegramBotsApi;
+import org.telegram.telegrambots.meta.api.methods.ParseMode;
+import org.telegram.telegrambots.meta.api.methods.commands.SetMyCommands;
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.commands.BotCommand;
+import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScopeDefault;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
+
+import jakarta.annotation.PostConstruct;
+
+import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+@Component
+public class EchoBot extends TelegramLongPollingBot {
+
+    private Set<Integer> summ = new HashSet<>();
+
+    @Value("${bot.username}")
+    private String username;
+
+    @Value("${bot.token}")
+    private String token;
+
+    private static final Logger log = LoggerFactory.getLogger(EchoBot.class);
+
+    @PostConstruct
+    public void start() {
+        try {
+            TelegramBotsApi botsApi = new TelegramBotsApi(DefaultBotSession.class);
+            botsApi.registerBot(this);
+            log.info("EchoBot started as @{}", getBotUsername());
+        } catch (Exception e) {
+            log.error("Failed to register bot", e);
+        }
+    }
+
+    @Override
+    public void onRegister() {
+        try {
+            execute(new SetMyCommands(
+                    Arrays.asList(
+                            new BotCommand("start", "Запустить бота"),
+                            new BotCommand("create", "Создать платеж")
+                    ),
+                    new BotCommandScopeDefault(),
+                    null
+            ));
+        } catch (TelegramApiException e) {
+            log.error(e.getMessage() + LocalDateTime.now());
+        }
+    }
+
+    @Override
+    public String getBotUsername() {
+        return username;
+    }
+
+    @Override
+    public String getBotToken() {
+        return token;
+    }
+
+    @Override
+    public void onUpdateReceived(Update update) {
+        if (update.hasMessage() && update.getMessage().hasText()) {
+            String text = update.getMessage().getText();
+            long chatId = update.getMessage().getChatId();
+
+            String reply;
+            if ("/start".equals(text)) {
+                reply = "Бот для создание платежей \n" +
+                        "Введите команду /create чтобы создать платежную сессию \n" +
+                        "Позже скопируйте ссылку и отдайте клиенту";
+            } else if ("/create".equals(text)) {
+                reply = "Введите сумму в рублях";
+            }else {
+                reply = "<pre><code>" + createLink(text) + "</code></pre>";
+
+
+                SendMessage msg = SendMessage.builder()
+                        .chatId(chatId)
+                        .text(reply)
+                        .parseMode(ParseMode.HTML)        // важно!
+                        .disableWebPagePreview(true)
+                        .build();
+
+                try {
+                    execute(msg);
+                } catch (TelegramApiException e) {
+                    log.error("Failed to send message", e);
+                }
+
+                return;
+            }
+
+            SendMessage msg = SendMessage.builder()
+                    .chatId(String.valueOf(chatId))
+                    .text(reply)
+                    .build();
+
+            try {
+                execute(msg);
+            } catch (TelegramApiException e) {
+                log.error("Failed to send message", e);
+            }
+        }
+    }
+
+
+    private String createLink(String input) {
+        Integer value;
+        try {
+             value = Integer.parseInt(input);
+        } catch (NumberFormatException e) {
+            return "Неверный формат суммы";
+        }
+        return "https:example.com/123213123";
+    }
+}
