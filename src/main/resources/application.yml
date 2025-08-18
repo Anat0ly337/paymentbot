@@ -1,7 +1,7 @@
 # src/main/resources/application.yml
 bot:
   username: ${TELEGRAM_BOT_USERNAME:Payment_Excursions_Batumi_Bot}
-  token: ${TELEGRAM_BOT_TOKEN}
+  token: ${TELEGRAM_BOT_TOKEN:123}
 
 betatransfer:
   name: ${BETATRANSFER_NAME:excursions_batumi_key}
