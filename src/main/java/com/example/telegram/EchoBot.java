@@ -134,13 +134,17 @@ public class EchoBot extends TelegramLongPollingBot {
 
             // готовим дополнительные поля (необязательно, но полезно)
             Map<String, String> extra = Map.of(
-                    "description", "Test order " + orderId,
+                    "description", orderId,
                     "urlSuccess", "https://paymentbot-production.up.railway.app/success?tgId=" + String.valueOf(chatId),
                     "urlFail",    "https://paymentbot-production.up.railway.appfail?tgId=" + String.valueOf(chatId),
                     "callbackUrl","https://paymentbot-production.up.railway.app/callback?tgId=" + String.valueOf(chatId),
                     "fullCallback","1"
             );
              value = Integer.parseInt(input);
+
+             if (value < 1000) {
+                 return "Минимум 1000";
+             }
 
             String respBody = bt.payment(String.valueOf(value), "RUB", orderId, extra);
 
