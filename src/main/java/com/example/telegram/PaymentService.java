@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.net.http.HttpClient;
@@ -32,12 +33,13 @@ public class PaymentService {
     /**
      * Создание платежа: POST form на /api/payment?token=PUBLIC, sign=md5(implode(values)+secret)
      */
-    public String payment(String amount, String currency, String orderId, Map<String, String> extra) throws Exception {
+    public String payment(String amount, String currency, String orderId, Map<String, String> extra) throws IOException, InterruptedException {
         // порядок важен → LinkedHashMap
         Map<String, String> form = new LinkedHashMap<>();
         form.put("amount", amount);
         form.put("currency", currency);
-        form.put("orderId", orderId);
+        form.put("orderId", orderId.substring(0, 40));
+        form.put("paymentSystem", "Card2");
         if (extra != null) form.putAll(extra);
 
         // подпись по образцу из PHP
